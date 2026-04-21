@@ -11,6 +11,7 @@ package com.mycompany.smartcampusapi.resource;
 import com.mycompany.smartcampusapi.data.DataStore;
 import com.mycompany.smartcampusapi.model.Room;
 import com.mycompany.smartcampusapi.model.Sensor;
+import com.mycompany.smartcampusapi.exception.LinkedResourceNotFoundException;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -69,9 +70,7 @@ public class SensorResource {
 
         Room room = DataStore.rooms.get(sensor.getRoomId());
         if (room == null) {
-            return Response.status(422)
-                    .entity("The specified roomId does not exist.")
-                    .build();
+            throw new LinkedResourceNotFoundException("The specified roomId does not exist.");
         }
 
         if (sensor.getStatus() == null || sensor.getStatus().isBlank()) {

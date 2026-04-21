@@ -12,6 +12,7 @@ package com.mycompany.smartcampusapi.resource;
 import com.mycompany.smartcampusapi.data.DataStore;
 import com.mycompany.smartcampusapi.model.Sensor;
 import com.mycompany.smartcampusapi.model.SensorReading;
+import com.mycompany.smartcampusapi.exception.SensorUnavailableException;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -63,9 +64,7 @@ public class SensorReadingResource {
         }
 
         if ("MAINTENANCE".equalsIgnoreCase(sensor.getStatus())) {
-            return Response.status(Response.Status.FORBIDDEN)
-                    .entity("Sensor is in maintenance mode and cannot accept readings.")
-                    .build();
+            throw new SensorUnavailableException("Sensor is in maintenance mode and cannot accept readings.");
         }
 
         if (reading == null) {

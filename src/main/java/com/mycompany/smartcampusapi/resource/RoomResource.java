@@ -11,6 +11,7 @@ package com.mycompany.smartcampusapi.resource;
 
 import com.mycompany.smartcampusapi.data.DataStore;
 import com.mycompany.smartcampusapi.model.Room;
+import com.mycompany.smartcampusapi.exception.RoomNotEmptyException;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -85,9 +86,7 @@ public class RoomResource {
         }
 
         if (room.getSensorIds() != null && !room.getSensorIds().isEmpty()) {
-            return Response.status(Response.Status.CONFLICT)
-                    .entity("Cannot delete room because sensors are still assigned.")
-                    .build();
+            throw new RoomNotEmptyException("Cannot delete room because sensors are still assigned.");
         }
 
         DataStore.rooms.remove(roomId);
