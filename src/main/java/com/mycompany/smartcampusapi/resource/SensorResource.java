@@ -19,6 +19,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.PathParam;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -87,5 +88,10 @@ public class SensorResource {
         return Response.created(URI.create("/api/v1/sensors/" + sensor.getId()))
                 .entity(sensor)
                 .build();
+    }
+    
+    @Path("/{sensorId}/readings")
+    public SensorReadingResource getSensorReadingResource(@PathParam("sensorId") String sensorId){
+        return new SensorReadingResource(sensorId);
     }
 }
