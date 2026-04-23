@@ -79,7 +79,7 @@ curl -X POST http://localhost:8080/api/v1/sensors/TEMP-001/readings \
 
 # Answers for Questions
 
-###Part 1: Service Architecture & Setup (10 Marks)
+### Part 1: Service Architecture & Setup (10 Marks)
 
 1. Project & Application Configuration (5 Marks):
 ##Question: 
@@ -119,7 +119,7 @@ sensors collections in the discovery response, the client can navigate the API w
 manually constructing every URL. It also improves maintainability because changes to resource paths or 
 navigation structure can often be handled by updating the server responses rather than requiring major client-side changes.
 
-###Part 2: Room Management 
+### Part 2: Room Management 
 
 1. RoomResource Implementation:
 ## Question: 
@@ -165,7 +165,7 @@ Using a query parameter such as /api/v1/sensors?type=CO2 is generally better for
 and the query parameter simply refines the result set. This approach is more flexible and more consistent with RESTful design especially when adding multiple filters like status, roomId or value ranges. For instance query parameters make it easy to support requests like 
 /api/v1/sensors?type=CO2&status=ACTIVE. However placing the filter value inside the path like /api/v1/sensors/type/CO2 becomes impractical in this case.
 
-###Part 4: Deep Nesting with Sub-Resources
+### Part 4: Deep Nesting with Sub-Resources
 
 1. The Sub-Resource Locator Pattern:
 ##Question: 
@@ -179,7 +179,7 @@ It also makes future changes easier because additional reading related operation
 the sub-resource approach reduces clutter and improves scalability for larger APIs.
 
 
-###Part 5: Advanced Erro Handling, Exception Mapping & Logging
+### Part 5: Advanced Erro Handling, Exception Mapping & Logging
 
 2. Dependency Validation:
 ## Question: 
