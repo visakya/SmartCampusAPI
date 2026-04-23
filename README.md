@@ -79,10 +79,11 @@ curl -X POST http://localhost:8080/api/v1/sensors/TEMP-001/readings \
 
 # Answers for Questions
 
-Part 1: Service Architecture & Setup (10 Marks)
+###Part 1: Service Architecture & Setup (10 Marks)
 
 1. Project & Application Configuration (5 Marks):
-Question: In your report, explain the default lifecycle of a JAX-RS Resource class. Is a new instance 
+##Question: 
+In your report, explain the default lifecycle of a JAX-RS Resource class. Is a new instance 
 instantiated for every incoming request, or does the runtime treat it as a singleton? Elaborate on 
 how this architectural decision impacts the way you manage and synchronize
 your in-memory data structures (maps/lists) to prevent data loss or race conditions.
@@ -102,7 +103,8 @@ the shared structures should be managed carefully. In a more advanced implementa
 such as ConcurrentHashMap or explicit synchronization could be used to improve safety.
 
 2. The ”Discovery” Endpoint (5 Marks):
-Question: Why is the provision of ”Hypermedia” (links and navigation within responses) considered a
+## Question: 
+Why is the provision of ”Hypermedia” (links and navigation within responses) considered a
 hallmark of advanced RESTful design (HATEOAS)? How does this approach benefit client developers compared to static documentation? 
 
 ## Answer
@@ -117,10 +119,11 @@ sensors collections in the discovery response, the client can navigate the API w
 manually constructing every URL. It also improves maintainability because changes to resource paths or 
 navigation structure can often be handled by updating the server responses rather than requiring major client-side changes.
 
-Part 2: Room Management 
+###Part 2: Room Management 
 
 1. RoomResource Implementation:
-Question: When returning a list of rooms, what are the implications of returning only IDs versus returning the full room objects? Consider network bandwidth and client side processing.
+## Question: 
+When returning a list of rooms, what are the implications of returning only IDs versus returning the full room objects? Consider network bandwidth and client side processing.
 
 ## Answer
 Returning room Ids only will reduce the amount of data sent over the network. So it will be more efficient in terms of bandwidth and can improve performance when there are many rooms. 
@@ -130,7 +133,8 @@ follow-up requests and will simplify client side logic. So returning only Ids wi
 need complete information and want to reduce additional API calls.
 
 2. RoomDeletion & Safety Logic: 
-Question: is the DELETE operation idempotent in your implementation? Provide a detailed justification by describing what happens if a client mistakenly sends the exact same DELETE request for a room
+## Question: 
+Is the DELETE operation idempotent in your implementation? Provide a detailed justification by describing what happens if a client mistakenly sends the exact same DELETE request for a room
 multiple times.
 
 ## Answer
@@ -139,10 +143,11 @@ In this implementation the first successful DELETE request removes the room from
 has already been deleted. While the response status may vary depending on whether the request was issued initially or repeatedly the end result is that the room does not exist.
 Therefore the operation is considered idempotent since there is no further change to the resource after the first success.
 
-Part 3: Sensor OPerations & Linking 
+### Part 3: Sensor OPerations & Linking 
 
 1. Sensor Resource & Integrity:
-Question: We explicitly use the @Consumes (MediaType.APPLICATION_JSON) annotation on the POST method. Explain the technical consequences if a client attempts to send data in a different format, such as text/plain or application/xml.
+## Question: 
+We explicitly use the @Consumes (MediaType.APPLICATION_JSON) annotation on the POST method. Explain the technical consequences if a client attempts to send data in a different format, such as text/plain or application/xml.
 How does JAX-RS handle this mismatch?
 
 ## Answer
@@ -151,7 +156,8 @@ will not find a suitable message body reader for that content type. As a result 
 It helps prevent confusion when parsing client requests and processing them.
 
 2. Filtered Retrieval & Search
-Question: You implemntated this filtering using QueryParam. Contrast this with an alternative design where the type is part of the URL path (e.g., /api/v1/sensors/type/C02). Why is the query parameter approach generally considered 
+## Question: 
+You implemntated this filtering using QueryParam. Contrast this with an alternative design where the type is part of the URL path (e.g., /api/v1/sensors/type/C02). Why is the query parameter approach generally considered 
 superior for filtering and searching collections?
 
 ## Answer
@@ -159,10 +165,11 @@ Using a query parameter such as /api/v1/sensors?type=CO2 is generally better for
 and the query parameter simply refines the result set. This approach is more flexible and more consistent with RESTful design especially when adding multiple filters like status, roomId or value ranges. For instance query parameters make it easy to support requests like 
 /api/v1/sensors?type=CO2&status=ACTIVE. However placing the filter value inside the path like /api/v1/sensors/type/CO2 becomes impractical in this case.
 
-Part 4: Deep Nesting with Sub-Resources
+###Part 4: Deep Nesting with Sub-Resources
 
 1. The Sub-Resource Locator Pattern:
-Question: Discuss the architectural benefits of the Sub-Resource Locator pattern. How does delegating logic to separate classes help manage complexity in large APIs compared to defining every nested path (e.g., sensors/{id}/readings/{rid}) 
+##Question: 
+Discuss the architectural benefits of the Sub-Resource Locator pattern. How does delegating logic to separate classes help manage complexity in large APIs compared to defining every nested path (e.g., sensors/{id}/readings/{rid}) 
 in one massive controller class?
 
 ## Answer
@@ -172,10 +179,11 @@ It also makes future changes easier because additional reading related operation
 the sub-resource approach reduces clutter and improves scalability for larger APIs.
 
 
-Part 5: Advanced Erro Handling, Exception Mapping & Logging
+###Part 5: Advanced Erro Handling, Exception Mapping & Logging
 
 2. Dependency Validation:
-Question: Why is HTTP 422 often considered more semantically accurate than a standard 404 when the issue is a missing reference inside a valid JSON payload?
+## Question: 
+Why is HTTP 422 often considered more semantically accurate than a standard 404 when the issue is a missing reference inside a valid JSON payload?
 
 ## Answer
 HTTP 422 Unprocessable Entity is often more semantically accurate than 404 in this situation because the requested endpoint itself exists but the content of the request is invalid. Here the client successfully sends a JSON payload to the sensor creation endpoint 
@@ -183,7 +191,8 @@ but the roomId inside that valid payload refers to a room that does not exist. A
 values inside the payload was logically invalid. So 422 communicates that the problem lies in the submitted data better rather than in the endpoint path. 
 
 4. The Global Safety Net (500):
-Question : From a cybersecurity standpoint, explain the risks assoicated with exposing internal java stack traces to external API consumers. What specific information could an attacker gather from such a trace?
+## Question : 
+From a cybersecurity standpoint, explain the risks assoicated with exposing internal java stack traces to external API consumers. What specific information could an attacker gather from such a trace?
 
 ## Answer 
 Exposing internal java stack traces to external users is a cybersecurity risk because it reveals implementation details of the server. An attacker can learn class names, package structures, library versions, file paths, framework configuration and internal method calls.
@@ -191,7 +200,8 @@ These can help them identify weaknesses, guess technologies that have been used 
 with a safer message to the client while keeping the actual exception details only in the server logs for developers.
 
 5. API Request & Response Logging Filters:
-Question: Why is it advantageous to use JAX-RS filters for cross-cutting concerns like logging, rather than manually inserting Logger.info() statements inside every single resource method? 
+## Question: 
+Why is it advantageous to use JAX-RS filters for cross-cutting concerns like logging, rather than manually inserting Logger.info() statements inside every single resource method? 
 
 ## Answer
 The reason why using JAX-RS filters for cross-cutting concerns such as logging is better than manually placing Logger.info() statements inside every resource method is because filters apply to all requests consistently and responses in one central place. This reduces duplicated code 
