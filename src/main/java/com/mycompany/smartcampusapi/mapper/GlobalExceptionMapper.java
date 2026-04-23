@@ -8,7 +8,7 @@ package com.mycompany.smartcampusapi.mapper;
  *
  * @author Oneli
  */
-import com.mycompany.smartcampusapi.dto.ErrorResponse;
+
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
@@ -19,15 +19,17 @@ public class GlobalExceptionMapper implements ExceptionMapper<Throwable> {
 
     @Override
     public Response toResponse(Throwable ex) {
-        ErrorResponse error = new ErrorResponse(
-                500,
-                "Internal Server Error",
-                "An unexpected error occurred. Please contact the administrator."
-        );
+        String json = """
+                {
+                  "status": 500,
+                  "error": "Internal Server Error",
+                  "message": "An unexpected error occurred. Please contact the administrator."
+                }
+                """;
 
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                 .type(MediaType.APPLICATION_JSON)
-                .entity(error)
+                .entity(json)
                 .build();
     }
 }

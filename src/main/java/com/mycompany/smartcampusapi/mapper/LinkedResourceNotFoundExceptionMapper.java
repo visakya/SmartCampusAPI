@@ -9,7 +9,6 @@ package com.mycompany.smartcampusapi.mapper;
  * @author Oneli
  */
 
-import com.mycompany.smartcampusapi.dto.ErrorResponse;
 import com.mycompany.smartcampusapi.exception.LinkedResourceNotFoundException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -21,15 +20,17 @@ public class LinkedResourceNotFoundExceptionMapper implements ExceptionMapper<Li
 
     @Override
     public Response toResponse(LinkedResourceNotFoundException ex) {
-        ErrorResponse error = new ErrorResponse(
-                422,
-                "Unprocessable Entity",
-                ex.getMessage()
-        );
+        String json = """
+                {
+                  "status": 422,
+                  "error": "Unprocessable Entity",
+                  "message": "%s"
+                }
+                """.formatted(ex.getMessage().replace("\"", "\\\""));
 
         return Response.status(422)
                 .type(MediaType.APPLICATION_JSON)
-                .entity(error)
+                .entity(json)
                 .build();
     }
 }

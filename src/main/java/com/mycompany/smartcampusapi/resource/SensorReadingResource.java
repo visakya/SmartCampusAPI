@@ -10,13 +10,12 @@ package com.mycompany.smartcampusapi.resource;
  */
 
 import com.mycompany.smartcampusapi.data.DataStore;
+import com.mycompany.smartcampusapi.exception.SensorUnavailableException;
 import com.mycompany.smartcampusapi.model.Sensor;
 import com.mycompany.smartcampusapi.model.SensorReading;
-import com.mycompany.smartcampusapi.exception.SensorUnavailableException;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -25,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-@Path("")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class SensorReadingResource {
@@ -39,9 +37,19 @@ public class SensorReadingResource {
     @GET
     public Response getAllReadings() {
         Sensor sensor = DataStore.sensors.get(sensorId);
+
         if (sensor == null) {
+            String json = """
+                {
+                  "status": 404,
+                  "error": "Not Found",
+                  "message": "Sensor not found: %s"
+                }
+                """.formatted(sensorId.replace("\"", "\\\""));
+
             return Response.status(Response.Status.NOT_FOUND)
-                    .entity("Sensor not found.")
+                    .type(MediaType.APPLICATION_JSON)
+                    .entity(json)
                     .build();
         }
 
@@ -57,19 +65,40 @@ public class SensorReadingResource {
     @POST
     public Response addReading(SensorReading reading) {
         Sensor sensor = DataStore.sensors.get(sensorId);
+
         if (sensor == null) {
+            String json = """
+                {
+                  "status": 404,
+                  "error": "Not Found",
+                  "message": "Sensor not found: %s"
+                }
+                """.formatted(sensorId.replace("\"", "\\\""));
+
             return Response.status(Response.Status.NOT_FOUND)
-                    .entity("Sensor not found.")
+                    .type(MediaType.APPLICATION_JSON)
+                    .entity(json)
                     .build();
         }
 
         if ("MAINTENANCE".equalsIgnoreCase(sensor.getStatus())) {
-            throw new SensorUnavailableException("Sensor is in maintenance mode and cannot accept readings.");
+            throw new SensorUnavailableException(
+                    "Sensor " + sensorId + " is under maintenance and cannot accept readings."
+            );
         }
 
         if (reading == null) {
+            String json = """
+                {
+                  "status": 400,
+                  "error": "Bad Request",
+                  "message": "Reading body is required."
+                }
+                """;
+
             return Response.status(Response.Status.BAD_REQUEST)
-                    .entity("Reading body is required.")
+                    .type(MediaType.APPLICATION_JSON)
+                    .entity(json)
                     .build();
         }
 

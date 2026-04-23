@@ -8,7 +8,7 @@ package com.mycompany.smartcampusapi.mapper;
  *
  * @author Oneli
  */
-import com.mycompany.smartcampusapi.dto.ErrorResponse;
+
 import com.mycompany.smartcampusapi.exception.SensorUnavailableException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -20,15 +20,17 @@ public class SensorUnavailableExceptionMapper implements ExceptionMapper<SensorU
 
     @Override
     public Response toResponse(SensorUnavailableException ex) {
-        ErrorResponse error = new ErrorResponse(
-                403,
-                "Forbidden",
-                ex.getMessage()
-        );
+        String json = """
+                {
+                  "status": 403,
+                  "error": "Forbidden",
+                  "message": "%s"
+                }
+                """.formatted(ex.getMessage().replace("\"", "\\\""));
 
         return Response.status(Response.Status.FORBIDDEN)
                 .type(MediaType.APPLICATION_JSON)
-                .entity(error)
+                .entity(json)
                 .build();
     }
 }

@@ -9,7 +9,6 @@ package com.mycompany.smartcampusapi.mapper;
  * @author Oneli
  */
 
-import com.mycompany.smartcampusapi.dto.ErrorResponse;
 import com.mycompany.smartcampusapi.exception.RoomNotEmptyException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -21,15 +20,17 @@ public class RoomNotEmptyExceptionMapper implements ExceptionMapper<RoomNotEmpty
 
     @Override
     public Response toResponse(RoomNotEmptyException ex) {
-        ErrorResponse error = new ErrorResponse(
-                409,
-                "Conflict",
-                ex.getMessage()
-        );
+        String json = """
+                {
+                  "status": 409,
+                  "error": "Conflict",
+                  "message": "%s"
+                }
+                """.formatted(ex.getMessage().replace("\"", "\\\""));
 
         return Response.status(Response.Status.CONFLICT)
                 .type(MediaType.APPLICATION_JSON)
-                .entity(error)
+                .entity(json)
                 .build();
     }
 }

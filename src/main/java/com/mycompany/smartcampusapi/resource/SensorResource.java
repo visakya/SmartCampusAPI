@@ -8,19 +8,20 @@ package com.mycompany.smartcampusapi.resource;
  *
  * @author Oneli
  */
+
 import com.mycompany.smartcampusapi.data.DataStore;
+import com.mycompany.smartcampusapi.exception.LinkedResourceNotFoundException;
 import com.mycompany.smartcampusapi.model.Room;
 import com.mycompany.smartcampusapi.model.Sensor;
-import com.mycompany.smartcampusapi.exception.LinkedResourceNotFoundException;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.PathParam;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,11 +32,11 @@ import java.util.List;
 public class SensorResource {
 
     @GET
-    public List<Sensor> getAllSensors(@QueryParam("type") String type) {
+    public Response getAllSensors(@QueryParam("type") String type) {
         List<Sensor> allSensors = new ArrayList<>(DataStore.sensors.values());
 
         if (type == null || type.isBlank()) {
-            return allSensors;
+            return Response.ok(allSensors).build();
         }
 
         List<Sensor> filteredSensors = new ArrayList<>();
@@ -45,32 +46,84 @@ public class SensorResource {
             }
         }
 
-        return filteredSensors;
+        return Response.ok(filteredSensors).build();
+    }
+
+    @GET
+    @Path("/{sensorId}")
+    public Response getSensorById(@PathParam("sensorId") String sensorId) {
+        Sensor sensor = DataStore.sensors.get(sensorId);
+
+        if (sensor == null) {
+            String json = """
+                {
+                  "status": 404,
+                  "error": "Not Found",
+                  "message": "Sensor not found: %s"
+                }
+                """.formatted(sensorId.replace("\"", "\\\""));
+
+            return Response.status(Response.Status.NOT_FOUND)
+                    .type(MediaType.APPLICATION_JSON)
+                    .entity(json)
+                    .build();
+        }
+
+        return Response.ok(sensor).build();
     }
 
     @POST
     public Response createSensor(Sensor sensor) {
         if (sensor == null || sensor.getId() == null || sensor.getId().isBlank()) {
+            String json = """
+                {
+                  "status": 400,
+                  "error": "Bad Request",
+                  "message": "Sensor ID is required."
+                }
+                """;
+
             return Response.status(Response.Status.BAD_REQUEST)
-                    .entity("Sensor ID is required.")
+                    .type(MediaType.APPLICATION_JSON)
+                    .entity(json)
                     .build();
         }
 
         if (sensor.getRoomId() == null || sensor.getRoomId().isBlank()) {
+            String json = """
+                {
+                  "status": 400,
+                  "error": "Bad Request",
+                  "message": "Room ID is required."
+                }
+                """;
+
             return Response.status(Response.Status.BAD_REQUEST)
-                    .entity("roomId is required.")
+                    .type(MediaType.APPLICATION_JSON)
+                    .entity(json)
                     .build();
         }
 
         if (DataStore.sensors.containsKey(sensor.getId())) {
+            String json = """
+                {
+                  "status": 409,
+                  "error": "Conflict",
+                  "message": "Sensor with this ID already exists."
+                }
+                """;
+
             return Response.status(Response.Status.CONFLICT)
-                    .entity("Sensor with this ID already exists.")
+                    .type(MediaType.APPLICATION_JSON)
+                    .entity(json)
                     .build();
         }
 
         Room room = DataStore.rooms.get(sensor.getRoomId());
         if (room == null) {
-            throw new LinkedResourceNotFoundException("The specified roomId does not exist.");
+            throw new LinkedResourceNotFoundException(
+                    "The specified roomId does not exist: " + sensor.getRoomId()
+            );
         }
 
         if (sensor.getStatus() == null || sensor.getStatus().isBlank()) {
@@ -88,9 +141,9 @@ public class SensorResource {
                 .entity(sensor)
                 .build();
     }
-    
+
     @Path("/{sensorId}/readings")
-    public SensorReadingResource getSensorReadingResource(@PathParam("sensorId") String sensorId){
+    public SensorReadingResource getSensorReadingResource(@PathParam("sensorId") String sensorId) {
         return new SensorReadingResource(sensorId);
     }
 }
